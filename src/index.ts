@@ -3,10 +3,11 @@ import express from 'express';
 import * as dotenv from 'dotenv';
 import { askGPT } from './askGPT';
 
-// Загружаем переменные окружения из .env
 dotenv.config();
 
-const bot = new Telegraf(process.env.BOT_TOKEN!); // "!" говорит TypeScript, что переменная точно есть
+const bot = new Telegraf(process.env.BOT_TOKEN!);
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 // Команда /start
 bot.start((ctx) => {
@@ -28,21 +29,23 @@ bot.on('text', async (ctx) => {
   }
 });
 
-// Запуск бота
-bot.launch();
-console.log('✅ Бот запущен');
-
-// Грейсфул шутдаун
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
+// Обработчик корневого маршрута
 app.get('/', (_req, res) => {
   res.send('Бот запущен и работает');
 });
 
-app.listen(PORT, () => {
-  console.log(`Сервер слушает порт ${PORT}`);
+// Стартуем сервер и бота
+app.listen(PORT, async () => {
+  console.log(`🚀 Сервер слушает порт ${PORT}`);
+
+  try {
+    await bot.launch();
+    console.log('🤖 Бот успешно запущен');
+  } catch (error) {
+    console.error('❌ Ошибка запуска бота:', error);
+  }
 });
+
+// Грейсфул шутдаун
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
