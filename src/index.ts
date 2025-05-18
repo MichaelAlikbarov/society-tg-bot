@@ -1,4 +1,5 @@
 import { Telegraf } from 'telegraf';
+import express from 'express';
 import * as dotenv from 'dotenv';
 import { askGPT } from './askGPT';
 
@@ -34,3 +35,14 @@ console.log('✅ Бот запущен');
 // Грейсфул шутдаун
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (_req, res) => {
+  res.send('Бот запущен и работает');
+});
+
+app.listen(PORT, () => {
+  console.log(`Сервер слушает порт ${PORT}`);
+});
